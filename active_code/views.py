@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -43,3 +45,26 @@ class ActiveCodes(APIView):
             print(e)
 
         return Response(tools.api_response(501, '服务器异常,请稍后重试'))
+
+
+class Activation(APIView):
+    def put(self, request):
+        ac = request.data.get('active_code')
+
+        try:
+            ac_q = ActiveCodeModel.objects.get(key=ac, is_forbidden=False, status=0)
+            aid = ac_q.pk
+            status = 1
+            life = ac_q.life
+            active_time = datetime.datetime.now()
+            expire = active_time + datetime.timedelta(days=life)
+
+            ac_q.status = status
+            ac_q.active_time = active_time
+            ac_q.expire = expire
+            ac_q.save()
+
+            return Response(tools.api_response(200, '激活成功', {'aid': aid}))
+        except ActiveCodeModel.DoesNotExist:
+            print('激活码不存在')
+            return Response(tools.api_response(401, '卡密无效'))

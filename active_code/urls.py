@@ -19,5 +19,6 @@ from django.urls import path
 from active_code import views
 
 urlpatterns = [
-    path('', views.ActiveCodes.as_view())
+    path('', views.ActiveCodes.as_view()),
+    path('activation/', views.Activation.as_view())
 ]
