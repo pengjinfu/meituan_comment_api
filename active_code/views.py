@@ -53,6 +53,12 @@ class Activation(APIView):
 
         try:
             ac_q = ActiveCodeModel.objects.get(key=ac, is_forbidden=False, status=0)
+            activation_ip = ''
+
+            if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+                activation_ip = request.META['HTTP_X_FORWARD_FOR']
+            else:
+                activation_ip = request.META['REMOTE_ADDR']
             aid = ac_q.pk
             status = 1
             life = ac_q.life
@@ -62,6 +68,7 @@ class Activation(APIView):
             ac_q.status = status
             ac_q.active_time = active_time
             ac_q.expire = expire
+            ac_q.activation_ip = activation_ip
             ac_q.save()
 
             return Response(tools.api_response(200, '激活成功', {'aid': aid}))
