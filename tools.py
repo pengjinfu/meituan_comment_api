@@ -1,6 +1,7 @@
 import datetime
 import uuid
 import jwt
+import hashlib
 
 
 def api_response(code, msg, data={}, total=0):
@@ -40,3 +41,10 @@ def generate_jwt(user_id, username, secret_key, algorithm="HS256"):
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3)
     }
     return jwt.encode(payload, secret_key, algorithm=algorithm)
+
+
+def md5(data):
+    _md5 = hashlib.md5()
+    _md5.update(data.encode())
+
+    return _md5.hexdigest()
