@@ -6,9 +6,12 @@ from rest_framework.response import Response
 import tools
 from active_code.models import ActiveCodeModel
 from active_code.serializers import ActiveCodeSerializer
+from backstage.CustomTokenAuthentication import TokenAuthentication
 
 
 class ActiveCodes(APIView):
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request):
         active_cdoes = ActiveCodeModel.objects.all()
         total = active_cdoes.count()
@@ -55,7 +58,8 @@ class Activation(APIView):
             ac_q = ActiveCodeModel.objects.get(key=ac, is_forbidden=False, status=0)
             activation_ip = ''
 
-            if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+            # if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+            if 'HTTP_X_FORWARDED_FOR' in request.META:
                 activation_ip = request.META['HTTP_X_FORWARD_FOR']
             else:
                 activation_ip = request.META['REMOTE_ADDR']
