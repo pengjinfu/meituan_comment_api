@@ -1,0 +1,1 @@
+MALL_INFO_API_URL = 'https://e.waimai.meituan.com/api/v2/account/homePage'

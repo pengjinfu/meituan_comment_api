@@ -89,7 +89,8 @@ DATABASES = {
         'USER': config.database.USER,
         'PASSWORD': config.database.PASSWORD,
         'HOST': config.database.HOST,
-        'PORT': config.database.PORT
+        'PORT': config.database.PORT,
+        'OPTIONS': {'charset': 'utf8mb4'}
     }
 }
 
