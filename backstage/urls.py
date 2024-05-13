@@ -19,5 +19,6 @@ from django.urls import path
 from backstage import views
 
 urlpatterns = [
-    path('login/', views.Login.as_view())
+    path('login/', views.Login.as_view()),
+    path('active_codes/', views.ActiveCodes.as_view()),
 ]

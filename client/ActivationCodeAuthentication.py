@@ -8,7 +8,7 @@ from jwt import ExpiredSignatureError
 
 class ActivationCodeAuthentication(BaseAuthentication):
     def authenticate(self, request, *args, **kwargs):
-        key: str = request.META.get('KEY-AUTHORIZATION')
+        key: str = request.META.get('HTTP_KEY_AUTHORIZATION')
 
         if not key:
             raise AuthenticationFailed('请携带卡密')
