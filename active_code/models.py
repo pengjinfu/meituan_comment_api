@@ -8,7 +8,7 @@ class ActiveCodeModel(models.Model):
     life = models.PositiveIntegerField(default=1)
     is_forbidden = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
-    activation_ip = models.CharField(max_length=64, default=None)
+    activation_ip = models.CharField(max_length=64, null=True)
 
     # 卡密状态: 0=>未激活 1=>已激活 2=>已过期
     status = models.PositiveSmallIntegerField(default=0)

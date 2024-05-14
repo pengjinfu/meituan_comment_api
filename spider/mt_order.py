@@ -64,7 +64,6 @@ def get_orders(cookies, start_date, end_date, region_id):
             if content['code'] == 0:
                 items = content['data']['wmOrderList']
                 orders.extend(items)
-    print(orders)
     return orders
 
 
