@@ -154,3 +154,14 @@ class Comments(APIView):
             traceback.print_exc()
 
         return Response(tools.api_response(500, '评论获取失败'))
+
+
+
+class Orders(APIView):
+    def get(self, request):
+        try:
+            return Response(tools.api_response(200, 'ok'))
+        except Exception as e:
+            print(e)
+
+        return Response(tools.api_response(500, '获取订单失败'))
