@@ -84,16 +84,16 @@ class Malls(APIView):
 
             huifulv = spider.mall.get_mall_huifulv(cookies)
 
+            mall = MallModel.objects.filter(poi_id=poi_id).first()
+
+            if mall is not None:
+                return Response(tools.api_response(401, '此门店已被添加'))
+
             if huifulv is None:
                 return Response(tools.api_response(500, '登录信息有误，请检查登录状态后再试'))
 
             if poi_name is None:
                 return Response(tools.api_response(500, '登录信息有误，请检查登录状态后再试'))
-
-            mall = MallModel.objects.filter(poi_id=poi_id).first()
-
-            if mall is not None:
-                return Response(tools.api_response(401, '此门店已被添加'))
 
             mall = MallModel(
                 poi_id=poi_id,
@@ -154,7 +154,6 @@ class Comments(APIView):
             traceback.print_exc()
 
         return Response(tools.api_response(500, '评论获取失败'))
-
 
 
 class Orders(APIView):
