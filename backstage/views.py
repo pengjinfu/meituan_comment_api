@@ -65,3 +65,19 @@ class ActiveCodes(APIView):
             print(e)
 
         return Response(tools.api_response(501, '服务器异常,请稍后重试'))
+
+
+class ActiveCodeDetail(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    def put(self, request, ac_id, is_forbidden):
+        try:
+            is_forbidden = True if is_forbidden == 1 else False
+            ac = ActiveCodeModel.objects.get(id=ac_id)
+            ac.is_forbidden = not is_forbidden
+            ac.save()
+            return Response(tools.api_response(200, '操作成功'))
+        except ActiveCodeModel.DoesNotExist:
+            return Response(tools.api_response(400, '激活码不存在'))
+
+        return Response(tools.api_response(500, '操作失败'))

@@ -21,4 +21,5 @@ from backstage import views
 urlpatterns = [
     path('login/', views.Login.as_view()),
     path('active_codes/', views.ActiveCodes.as_view()),
+    path('active_codes/<int:ac_id>/<int:is_forbidden>/', views.ActiveCodeDetail.as_view())
 ]

@@ -29,7 +29,6 @@ class Activation(APIView):
             ac_q = ActiveCodeModel.objects.get(key=ac, is_forbidden=False, status=0)
             activation_ip = ''
 
-            # if request.META.has_key('HTTP_X_FORWARDED_FOR'):
             if 'HTTP_X_FORWARDED_FOR' in request.META:
                 activation_ip = request.META['HTTP_X_FORWARD_FOR']
             else:
@@ -83,20 +82,25 @@ class Malls(APIView):
             key = request.META.get('HTTP_KEY_AUTHORIZATION')
             active_code = ActiveCodeModel.objects.get(key=key)
 
-            poi_name = spider.mall.get_mall_info(cookies)
+            mall_info = spider.mall.get_mall_info(cookies)
+            huifulv = spider.mall.get_mall_hui_fu_lv(cookies)
 
-            huifulv = spider.mall.get_mall_huifulv(cookies)
+            if huifulv is None:
+                return Response(tools.api_response(500, '回复率获取失败，请稍后再试'))
+
+            if mall_info is None:
+                return Response(tools.api_response(500, '门店信息获取失败,请稍后再试'))
+
+            poi_name = mall_info['wmPoiName']
 
             mall = MallModel.objects.filter(poi_id=poi_id).first()
 
             if mall is not None:
-                return Response(tools.api_response(401, '此门店已被添加'))
-
-            if huifulv is None:
-                return Response(tools.api_response(500, '登录信息有误，请检查登录状态后再试'))
-
-            if poi_name is None:
-                return Response(tools.api_response(500, '登录信息有误，请检查登录状态后再试'))
+                mall.cookies = cookies
+                mall.poi_name = poi_name
+                mall.huifulv = huifulv
+                mall.save()
+                return Response(tools.api_response(200, f'已更新门店{poi_name}的信息'))
 
             mall = MallModel(
                 poi_id=poi_id,
@@ -151,7 +155,9 @@ class Comments(APIView):
         return Response(tools.api_response(500, '评论获取失败'))
 
 
-class Orders(APIView):
+class OrderDetail(APIView):
+    authentication_classes = [ActivationCodeAuthentication]
+
     def get(self, request, comment_id):
         try:
             c = CommentModel.objects.get(pk=comment_id)
@@ -161,7 +167,7 @@ class Orders(APIView):
 
             orders = MTOrderModel.objects.filter(poi_id=c.poi_id)
 
-            ret_order = {}
+            ret_order = None
             for item in orders:
                 food_details_dst = json.loads(item.food_details)
                 food_details_dst = sorted(food_details_dst, key=lambda item: item['foodName'])
@@ -170,9 +176,13 @@ class Orders(APIView):
                     if tools.compare_food_list(food_details_src, food_details_dst):
                         order_serializer = MTOrderSerializer(item)
                         ret_order = order_serializer.data
-                        break
+                    # order_serializer = MTOrderSerializer(item)
+                    # ret_order = order_serializer.data
 
-            return Response(tools.api_response(200, 'ok', data=ret_order))
+            if ret_order is None:
+                return Response(tools.api_response(404, msg='此评论对应的订单已过时效'))
+
+            return Response(tools.api_response(200, '订单定位成功, 结果可能会有一定偏差，仅供参考', data=ret_order))
         except CommentModel.DoesNotExist:
             return Response(tools.api_response(404, '评价不存在'))
         except Exception as e:
