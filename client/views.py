@@ -93,7 +93,7 @@ class Malls(APIView):
 
             poi_name = mall_info['wmPoiName']
 
-            mall = MallModel.objects.filter(poi_id=poi_id, active_code_id=active_code.id).first()
+            mall = MallModel.objects.filter(poi_id=poi_id).first()
 
             if mall is not None:
                 mall.cookies = cookies
