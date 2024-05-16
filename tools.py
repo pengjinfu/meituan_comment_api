@@ -54,9 +54,20 @@ def md5(data):
 def cookies2dict(cookies):
     cookies_list = list(map(lambda item: item.split('='), cookies.split(';')))
 
-    cookies_dict = {item[0]:item[1] for item in cookies_list}
+    cookies_dict = {item[0]: item[1] for item in cookies_list}
 
     return cookies_dict
+
+
+def compare_food_list(list_src, list_dst):
+    flag = False
+    for src, dst in zip(list_src, list_dst):
+        if src['foodName'] == dst['foodName'] and src['count'] == dst['count']:
+            flag = True
+        else:
+            flag = False
+
+    return flag
 
 
 if __name__ == '__main__':

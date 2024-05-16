@@ -1,4 +1,5 @@
 import datetime
+import json
 import traceback
 
 from rest_framework.views import APIView
@@ -7,8 +8,10 @@ from rest_framework.response import Response
 from mall.models import MallModel
 from comment.models import CommentModel
 from active_code.models import ActiveCodeModel
+from mt_order.models import MTOrderModel
 from mall.serializers import MallSerializer
 from comment.serializers import CommentSerializer
+from mt_order.serializer import MTOrderSerializer
 
 from client.ActivationCodeAuthentication import ActivationCodeAuthentication
 
@@ -131,17 +134,9 @@ class Comments(APIView):
     def get(self, requests, mall_id):
         try:
             mall = MallModel.objects.get(pk=mall_id)
-            cookies = mall.cookies
-            negative_comments_get_res = spider.comment.get_comments(cookies, 3)
-            # middle_comments_get_res = spider.comment.get_comments(cookies, 2)
-            # good_comments_get_res = spider.comment.get_comments(cookies, 1)
-
-            print(negative_comments_get_res)
-
-            if not negative_comments_get_res:
-                return Response(tools.api_response(500, '评论获取失败'))
 
             comments = CommentModel.objects.filter(poi_id=mall.poi_id)
+
             total = comments.count()
 
             serializer = CommentSerializer(comments, many=True)
@@ -157,9 +152,29 @@ class Comments(APIView):
 
 
 class Orders(APIView):
-    def get(self, request):
+    def get(self, request, comment_id):
         try:
-            return Response(tools.api_response(200, 'ok'))
+            c = CommentModel.objects.get(pk=comment_id)
+            food_details_src = json.loads(c.order_details)
+            food_details_src = sorted(food_details_src, key=lambda item: item['foodName'])
+            print(f'src: {food_details_src}')
+
+            orders = MTOrderModel.objects.filter(poi_id=c.poi_id)
+
+            ret_order = {}
+            for item in orders:
+                food_details_dst = json.loads(item.food_details)
+                food_details_dst = sorted(food_details_dst, key=lambda item: item['foodName'])
+                if len(food_details_dst) == len(food_details_src):
+                    print(f'dst: {food_details_dst}')
+                    if tools.compare_food_list(food_details_src, food_details_dst):
+                        order_serializer = MTOrderSerializer(item)
+                        ret_order = order_serializer.data
+                        break
+
+            return Response(tools.api_response(200, 'ok', data=ret_order))
+        except CommentModel.DoesNotExist:
+            return Response(tools.api_response(404, '评价不存在'))
         except Exception as e:
             print(e)
 

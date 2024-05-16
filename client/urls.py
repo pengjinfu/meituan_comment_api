@@ -21,5 +21,6 @@ urlpatterns = [
     path('malls/', views.Malls.as_view()),
     path('malls/<int:mall_id>/', views.MallDetail.as_view()),
     path('activation/', views.Activation.as_view()),
-    path('comments/<int:mall_id>/', views.Comments.as_view())
+    path('comments/<int:mall_id>/', views.Comments.as_view()),
+    path('orders/<int:comment_id>/', views.Orders.as_view())
 ]

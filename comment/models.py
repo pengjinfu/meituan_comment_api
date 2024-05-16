@@ -8,6 +8,7 @@ class CommentModel(models.Model):
     content = models.TextField(max_length=2048)
     order_details = models.TextField(max_length=4096)
     comment_type = models.PositiveSmallIntegerField()
+    score = models.CharField(max_length=16)
     create_time = models.DateField()
 
     class Meta:

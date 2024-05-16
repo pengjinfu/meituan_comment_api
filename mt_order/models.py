@@ -12,6 +12,7 @@ class MTOrderModel(models.Model):
     user_type = models.CharField(max_length=128)
     user_info = models.TextField(max_length=2048)
     food_details = models.TextField(max_length=4096)
+    poi_id = models.CharField(max_length=128)
     create_time = models.DateTimeField()
 
     class Meta:
