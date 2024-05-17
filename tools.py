@@ -62,12 +62,20 @@ def cookies2dict(cookies):
 def compare_food_list(list_src, list_dst):
     flag = False
     for src, dst in zip(list_src, list_dst):
-        if src['foodName'] == dst['foodName'] and src['count'] == dst['count']:
+        if src['foodName'] == dst['foodName']:
             flag = True
         else:
             flag = False
 
     return flag
+
+
+def date2str(date: datetime.date):
+    return date.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def str2date(date_str: str):
+    return datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
 
 if __name__ == '__main__':

@@ -11,18 +11,18 @@ class ActivationCodeAuthentication(BaseAuthentication):
         key: str = request.META.get('HTTP_KEY_AUTHORIZATION')
 
         if not key:
-            raise AuthenticationFailed('请携带卡密')
+            raise AuthenticationFailed({'code': 441, 'msg': '请携带卡密'})
 
         ac = ActiveCodeModel.objects.filter(key=key).first()
 
         if ac is None:
-            raise AuthenticationFailed('无效的卡密')
+            raise AuthenticationFailed({'code': 442, 'msg': '无效的卡密'})
 
         if ac.status == 0:
-            raise AuthenticationFailed('卡密未激活')
+            raise AuthenticationFailed({'code': 443, 'msg': '卡密未激活'})
         if ac.status == 2:
-            raise AuthenticationFailed('卡密已过期，请联系平台购买')
+            raise AuthenticationFailed({'code': 444, 'msg': '卡密已过期，请联系平台重新购买'})
         if ac.is_forbidden:
-            raise AuthenticationFailed('您的卡密被滥用，已被禁止使用')
+            raise AuthenticationFailed({'code': 445, 'msg': '您的卡密被滥用，已被禁止使用'})
 
         return ac, key

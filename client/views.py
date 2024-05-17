@@ -99,6 +99,7 @@ class Malls(APIView):
                 mall.cookies = cookies
                 mall.poi_name = poi_name
                 mall.huifulv = huifulv
+                mall.active_code_id = active_code.id
                 mall.save()
                 return Response(tools.api_response(200, f'已更新门店{poi_name}的信息'))
 
@@ -165,7 +166,9 @@ class OrderDetail(APIView):
             food_details_src = sorted(food_details_src, key=lambda item: item['foodName'])
             print(f'src: {food_details_src}')
 
-            orders = MTOrderModel.objects.filter(poi_id=c.poi_id)
+            order_query_time = c.create_time + datetime.timedelta(days=1)
+
+            orders = MTOrderModel.objects.filter(poi_id=c.poi_id, create_time__lte=order_query_time)
 
             ret_order = None
             for item in orders:
@@ -174,13 +177,13 @@ class OrderDetail(APIView):
                 if len(food_details_dst) == len(food_details_src):
                     print(f'dst: {food_details_dst}')
                     if tools.compare_food_list(food_details_src, food_details_dst):
-                        order_serializer = MTOrderSerializer(item)
-                        ret_order = order_serializer.data
-                    # order_serializer = MTOrderSerializer(item)
-                    # ret_order = order_serializer.data
+                        pass
+                    order_serializer = MTOrderSerializer(item)
+                    ret_order = order_serializer.data
+                    break
 
             if ret_order is None:
-                return Response(tools.api_response(404, msg='此评论对应的订单已过时效'))
+                return Response(tools.api_response(404, msg='暂未匹配到订单'))
 
             return Response(tools.api_response(200, '订单定位成功, 结果可能会有一定偏差，仅供参考', data=ret_order))
         except CommentModel.DoesNotExist:
